@@ -1,9 +1,32 @@
 package com.max.producer.service;
 
+/**
+ * Интерфейс, представляющий сервис отправки сообщений.
+ */
 public interface ProducerService {
 
-//    void sendMessage(String message, String routingKey, Integer delay);
+    /**
+     * Отправить сообщение с указанным маршрутом и задержкой.
+     *
+     * <p>Этот метод отправляет сообщение с заданным текстом и ключом маршрутизации в систему.
+     * Также можно указать задержку перед отправкой сообщения.</p>
+     *
+     * @param message Текст сообщения, которое будет отправлено.
+     * @param routingKey Ключ маршрутизации, который определяет, в какой канал или очередь будет отправлено сообщение.
+     * @param delay Время задержки в секундах перед отправкой сообщения.
+     */
+    void sendMessageWithDelay(String message, String routingKey, Integer delay);
 
-    void sendMessage(String message, String routingKey, Integer delayInMillis, Integer priority);
+//    /**
+//     * Отправить сообщение с указанным маршрутом и задержкой.
+//     *
+//     * <p>Этот метод отправляет сообщение с заданным текстом и ключом маршрутизации в систему.
+//     * Также можно указать задержку перед отправкой сообщения.</p>
+//     *
+//     * @param message Текст сообщения, которое будет отправлено.
+//     * @param routingKey Ключ маршрутизации, который определяет, в какой канал или очередь будет отправлено сообщение.
+//     * @param priority Приоритетность сообщения.
+//     */
+//    void sendMessageWithPriority(String message, String routingKey, Integer priority);
 
 }

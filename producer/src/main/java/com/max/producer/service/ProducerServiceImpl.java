@@ -9,55 +9,69 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Реализация сервиса отправки сообщений.
+ *
+ * <p>Этот класс реализует интерфейс {@link ProducerService} и отвечает за отправку сообщений
+ * в очередь RabbitMQ с возможностью задания задержки перед отправкой.</p>
+ */
+
 @RequiredArgsConstructor
 @Service
 public class ProducerServiceImpl implements ProducerService {
 
     private final RabbitTemplate rabbitTemplate;
 
+    /**
+     * Отправляет сообщение в очередь RabbitMQ с указанной задержкой.
+     *
+     * <p>Этот метод использует {@link RabbitTemplate} для отправки сообщения в очередь с заданным
+     * маршрутом и задержкой в миллисекундах. Если задержка не входит в допустимые рамки, выбрасывается
+     * исключение {@link BadRequestException}.</p>
+     *
+     * @param message Текст сообщения, которое будет отправлено.
+     * @param routingKey Ключ маршрутизации для определения целевой очереди.
+     * @param delayInMillis Задержка в миллисекундах перед отправкой сообщения.
+     */
+    @Override
+    public void sendMessageWithDelay(String message, String routingKey, Integer delayInMillis) {
+        MessageProperties properties = new MessageProperties();
+        properties.setHeader("x-delay", delayInMillis);
+        Message amqpMessage = new Message(message.getBytes(StandardCharsets.UTF_8), properties);
+
+        rabbitTemplate.convertAndSend("delayed-exchange", routingKey, amqpMessage);
+    }
+
+//    /**
+//     * Отправляет сообщение в очередь RabbitMQ с указанной задержкой.
+//     *
+//     * <p>Этот метод использует {@link RabbitTemplate} для отправки сообщения в очередь с заданным
+//     * маршрутом и задержкой в миллисекундах. Если задержка не входит в допустимые рамки, выбрасывается
+//     * исключение {@link BadRequestException}.</p>
+//     *
+//     * @param message Текст сообщения, которое будет отправлено.
+//     * @param routingKey Ключ маршрутизации для определения целевой очереди.
+//     * @param priority Приоритетность сообщения (0 - 10).
+//     * @throws BadRequestException если задержка выходит за пределы допустимого диапазона
+//     * (0 - 600000 миллисекунд (10 минут)).
+//     */
 //    @Override
-//    public void sendMessage(String message, String routingKey, Integer delayInMillis) {
+//    public void sendMessageWithPriority(String message, String routingKey, Integer priority) {
+//        final int MAX_PRIORITY = 10;
 //
-//        final int MAX_DELAY = 600000;
+//        if (priority == null) {
+//            priority = 0;
+//        }
 //
-//        if (delayInMillis < 0 || delayInMillis > MAX_DELAY) {
-//            throw new BadRequestException("Delay value must be between 0 and 600000 milliseconds (10 minutes).");
+//        if (priority < 0 || priority > MAX_PRIORITY) {
+//            throw new BadRequestException("Priority value must be between 0 and " + MAX_PRIORITY);
 //        }
 //
 //        MessageProperties properties = new MessageProperties();
-//        properties.setHeader("x-delay", delayInMillis);
+//        properties.setPriority(priority);
 //        Message amqpMessage = new Message(message.getBytes(StandardCharsets.UTF_8), properties);
 //
-//        rabbitTemplate.convertAndSend("delayed-exchange", routingKey, amqpMessage);
+//        rabbitTemplate.convertAndSend("priority-exchange", routingKey, amqpMessage);
 //    }
-
-    @Override
-    public void sendMessage(String message, String routingKey, Integer delayInMillis, Integer priority) {
-
-        final int MAX_DELAY = 600000;
-
-        if (delayInMillis < 0 || delayInMillis > MAX_DELAY) {
-            throw new BadRequestException("Delay value must be between 0 and 600000 milliseconds (10 minutes).");
-        }
-
-        MessageProperties properties = new MessageProperties();
-        properties.setHeader("x-delay", delayInMillis);
-
-        if (priority != null) {
-            properties.setPriority(priority);
-        }
-
-        Message amqpMessage = new Message(message.getBytes(StandardCharsets.UTF_8), properties);
-
-        if (priority != null && priority > 0) {
-            rabbitTemplate.convertAndSend("delayed-exchange", "priority_routing", amqpMessage);
-        } else {
-            rabbitTemplate.convertAndSend("delayed-exchange", "tasks_routing", amqpMessage);
-        }
-
-    }
-
-
-
 
 }

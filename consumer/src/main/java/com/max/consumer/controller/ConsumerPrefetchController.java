@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Контроллер для управления количеством сообщений, которые потребитель RabbitMQ может забрать за один раз.
+ * <p>Этот контроллер позволяет обновлять значение prefetchCount и получать текущее значение через HTTP-запросы.</p>
+ */
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -20,6 +24,13 @@ public class ConsumerPrefetchController {
     private final ConsumerConfig consumerConfig;
     private final RabbitListenerEndpointRegistry registry;
 
+    /**
+     * Обновляет количество сообщений, которое потребитель может забрать за один раз.
+     * <p>Этот метод позволяет динамически изменять значение prefetchCount для
+     * управления производительностью потребителя.</p>
+     *
+     * @param count новое значение prefetchCount (количество сообщений)
+     */
     @PutMapping
     public ResponseEntity<String> updatePrefetchCount(@RequestParam int count) {
 
@@ -38,6 +49,10 @@ public class ConsumerPrefetchController {
 
     }
 
+    /**
+     * Получает текущее значение количества сообщений, которое потребитель может забрать за один раз.
+     * <p>Этот метод позволяет получить текущее значение prefetchCount для мониторинга и диагностики.</p>
+     */
     @GetMapping
     public ResponseEntity<String> getPrefetchCount() {
         log.info("Retrieving current prefetch count");
